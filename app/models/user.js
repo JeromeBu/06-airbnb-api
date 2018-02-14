@@ -1,6 +1,7 @@
 var mongoose = require("mongoose");
+var uniqueValidator = require("mongoose-unique-validator");
 
-var UserSchema = new mongoose.Schema({
+var userSchema = new mongoose.Schema({
 	account: {
 		username: {
 			type: String,
@@ -19,11 +20,13 @@ var UserSchema = new mongoose.Schema({
 			message: "This email is not valid"
 		},
 		required: [true, "Email is required"],
-		unique: [true, "Email is already used"]
+		unique: true
 	},
 	token: String,
 	hash: String,
 	salt: String
 });
 
-module.exports = mongoose.model("User", UserSchema);
+userSchema.plugin(uniqueValidator, { message: "{PATH} is already taken" });
+
+module.exports = mongoose.model("User", userSchema);
