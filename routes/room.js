@@ -32,24 +32,60 @@ roomRouter.route("/:id").get(function(req, res) {
 });
 
 roomRouter.route(/^\/|$/).get(function(req, res) {
-	tools.log("req url", req.originalUrl);
-	// return res.json({ message: "dans la route api/room", query: req.query });
-	var query = {
-		city: req.query.city,
-		price: { $gt: req.query.priceMin, $lt: req.query.priceMax }
+	var filter = {
+		price: {
+			$gt: parseInt(req.query.priceMin) || 0,
+			$lt: parseInt(req.query.priceMax) || 100000
+		}
 	};
-	Room.find(query)
-		.count()
-		.exec(function(err, count) {
-			Room.find(query)
-				.populate("user")
-				.limit(5)
-				.exec(function(err, rooms) {
-					if (err) return tools.badRequestError(res, err);
-					if (!rooms) return res.send("Couldn't find room with that id");
-					res.json({ count: count, rooms: tools.displayedRooms(rooms) });
-				});
+
+	if (req.query.city) filter.city = req.query.city;
+	tools.log("query", filter);
+
+	var latitude = req.query.latitude,
+		longitude = req.query.longitude,
+		distance = req.query.distance;
+
+	var query = Room.find(filter);
+
+	if (latitude && longitude && distance) {
+		query.where("loc").near({
+			center: [longitude, latitude],
+			maxDistance: getRadians(10000) // 10 kilomètres
 		});
+	}
+	console.log("query :", query);
+	query.count().exec(function(err, count) {
+		if (err) return res.send(err);
+		query
+			.populate("user")
+			.limit(5)
+			.exec(function(err, rooms) {
+				if (err) return tools.badRequestError(res, err);
+				if (!rooms) return res.send("Couldn't find rooms");
+				console.log("count: ", count);
+				console.log("rooms : ", rooms);
+				res.json({ count: count, rooms: tools.displayedRooms(rooms) });
+			});
+	});
+
+	// Room.find(filter)
+	// 	.count()
+	// 	.exec(function(err, count) {
+	// 		Room.find(filter)
+	// 			.populate("user")
+	// 			.limit(5)
+	// 			.exec(function(err, rooms) {
+	// 				if (err) return tools.badRequestError(res, err);
+	// 				if (!rooms) return res.send("Couldn't find rooms");
+	// 				res.json({ count: count, rooms: tools.displayedRooms(rooms) });
+	// 			});
+	// 	});
 });
+
+function getRadians(meters) {
+	var km = meters / 1000;
+	return km / 111.2;
+}
 
 module.exports = roomRouter;
