@@ -17,8 +17,39 @@ roomRouter.route("/publish").post(function(req, res) {
 	});
 	newRoom.save(function(err) {
 		if (err) return res.send(err);
-		res.json(tools.displayedRoom(newRoom, req.current_user));
+		res.json(tools.displayedRoom(newRoom));
 	});
+});
+
+roomRouter.route("/:id").get(function(req, res) {
+	Room.findById(req.params.id)
+		.populate("user")
+		.exec(function(err, room) {
+			if (err) return tools.badRequestError(res, err);
+			if (!room) return res.send("Couldn't find room with that id");
+			res.json(tools.displayedRoom(room));
+		});
+});
+
+roomRouter.route(/^\/|$/).get(function(req, res) {
+	tools.log("req url", req.originalUrl);
+	// return res.json({ message: "dans la route api/room", query: req.query });
+	var query = {
+		city: req.query.city,
+		price: { $gt: req.query.priceMin, $lt: req.query.priceMax }
+	};
+	Room.find(query)
+		.count()
+		.exec(function(err, count) {
+			Room.find(query)
+				.populate("user")
+				.limit(5)
+				.exec(function(err, rooms) {
+					if (err) return tools.badRequestError(res, err);
+					if (!rooms) return res.send("Couldn't find room with that id");
+					res.json({ count: count, rooms: tools.displayedRooms(rooms) });
+				});
+		});
 });
 
 module.exports = roomRouter;

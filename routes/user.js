@@ -67,7 +67,8 @@ userRouter.route("/log_in").post(function(req, res) {
 });
 
 userRouter.route("/:id").get(function(req, res) {
-	User.findById(req.params.id, function(req, userAsked) {
+	User.findById(req.params.id, function(err, userAsked) {
+		if (err) return tools.badRequestError(res, err);
 		if (!userAsked) {
 			return res.send({ message: "Could not find any user with that ID" });
 		}

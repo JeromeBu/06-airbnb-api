@@ -61,7 +61,14 @@ function log(string, value) {
 	console.log(chalk.yellow(`\n \n ${string} : \n ${display} \n`));
 }
 
-function displayedRoom(room, user) {
+function displayedRooms(rooms) {
+	return rooms.map(room => {
+		return displayedRoom(room);
+	});
+}
+
+function displayedRoom(room) {
+	log("room user", room.user);
 	return {
 		title: room.title,
 		description: room.description,
@@ -70,9 +77,9 @@ function displayedRoom(room, user) {
 		city: room.city,
 		loc: room.loc,
 		user: {
-			_id: user._id,
+			_id: room.user._id,
 			account: {
-				username: user.account.username
+				username: room.user.account.username
 			}
 		}
 	};
@@ -87,5 +94,6 @@ module.exports = {
 	missingToken,
 	noOnesToken,
 	isEmailConfirmed,
-	displayedRoom
+	displayedRoom,
+	displayedRooms
 };

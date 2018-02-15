@@ -23,7 +23,11 @@ app.use("/api/room", roomRouter);
 app.use("/", coreRouter);
 
 function autenticateUser(req, res, next) {
-	var routeUrl = publicRoutes.filter(route => route.url === req.originalUrl);
+	// var routeUrl = publicRoutes.filter(route => route.url === req.originalUrl);
+	var routeUrl = publicRoutes.filter(route => {
+		var url_regex = RegExp("^" + route.url + ".*$");
+		return route.url === req.originalUrl || url_regex.test(req.originalUrl);
+	});
 	console.log("Public route : ", routeUrl);
 	if (routeUrl[0] && routeUrl[0].method === req.method) return next();
 	if (!req.headers.authorization) return tools.missingToken(res);
