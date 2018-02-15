@@ -34,7 +34,7 @@ function autenticateUser(req, res, next) {
 	var token = req.headers.authorization.split("Bearer ").pop();
 	User.findOne({ token: token }, function(err, user) {
 		if (err) return res.send(err);
-		if (!user) return noOnesToken(res);
+		if (!user) return tools.noOnesToken(res);
 		var conf = tools.isEmailConfirmed(user, res);
 		if (!conf.confirmed) return conf.result;
 		req.current_user = user;

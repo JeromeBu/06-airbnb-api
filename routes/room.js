@@ -74,7 +74,7 @@ roomRouter.route(/^\/|$/).get(function(req, res) {
 			.where("loc")
 			.near({
 				center: [longitude, latitude],
-				maxDistance: getRadians(10000) // 10 kilomètres
+				maxDistance: getRadians(distance) // 10 kilomètres
 			})
 			.count()
 			.exec(function(err, count) {
