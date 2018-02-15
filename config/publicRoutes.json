@@ -1,0 +1,4 @@
+[
+	{ "url": "/api/user/sign_up", "method": "POST" },
+	{ "url": "/api/user/log_in", "method": "POST" }
+]

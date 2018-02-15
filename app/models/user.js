@@ -26,6 +26,12 @@ var userSchema = new mongoose.Schema({
 	token: String,
 	hash: String,
 	salt: String,
+	rooms: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Room"
+		}
+	],
 	check_email_token: String,
 	emailConfirmed: {
 		type: Boolean,

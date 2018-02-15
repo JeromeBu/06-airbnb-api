@@ -61,6 +61,23 @@ function log(string, value) {
 	console.log(chalk.yellow(`\n \n ${string} : \n ${display} \n`));
 }
 
+function displayedRoom(room, user) {
+	return {
+		title: room.title,
+		description: room.description,
+		photos: room.photos,
+		price: room.price,
+		city: room.city,
+		loc: room.loc,
+		user: {
+			_id: user._id,
+			account: {
+				username: user.account.username
+			}
+		}
+	};
+}
+
 module.exports = {
 	log,
 	encrypt,
@@ -69,5 +86,6 @@ module.exports = {
 	couldntAuthMsg,
 	missingToken,
 	noOnesToken,
-	isEmailConfirmed
+	isEmailConfirmed,
+	displayedRoom
 };

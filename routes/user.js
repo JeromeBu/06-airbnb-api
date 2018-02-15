@@ -1,8 +1,9 @@
 var express = require("express");
 var User = require("../app/models/user.js");
-var api_key = "key-ccdd4fc2655e0f1fb4caec6b637cab50";
-var DOMAIN = "sandbox4d84c46226e649788b0285d48b7e5156.mailgun.org";
-var mailgun = require("mailgun-js")({ apiKey: api_key, domain: DOMAIN });
+var mailgun = require("mailgun-js")({
+	apiKey: "key-ccdd4fc2655e0f1fb4caec6b637cab50",
+	domain: "sandbox4d84c46226e649788b0285d48b7e5156.mailgun.org"
+});
 var tools = require("../myFunctions");
 var uid = require("uid2");
 
@@ -66,19 +67,11 @@ userRouter.route("/log_in").post(function(req, res) {
 });
 
 userRouter.route("/:id").get(function(req, res) {
-	if (!req.headers.authorization) return tools.missingToken(res);
-	var token = req.headers.authorization.split("Bearer ").pop();
-	User.findOne({ token: token }, function(err, userAsking) {
-		tools.log("user", userAsking);
-		if (!userAsking) return tools.noOnesToken(res);
-		var conf = tools.isEmailConfirmed(userAsking, res);
-		if (!conf.confirmed) return conf.result;
-		User.findById(req.params.id, function(req, userAsked) {
-			if (!userAsked) {
-				return res.send({ message: "Could not find any user with that ID" });
-			}
-			res.json(tools.userAuthorizedData(userAsked));
-		});
+	User.findById(req.params.id, function(req, userAsked) {
+		if (!userAsked) {
+			return res.send({ message: "Could not find any user with that ID" });
+		}
+		res.json(tools.userAuthorizedData(userAsked));
 	});
 });
 
