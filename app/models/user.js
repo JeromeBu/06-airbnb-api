@@ -5,7 +5,8 @@ var userSchema = new mongoose.Schema({
 	account: {
 		username: {
 			type: String,
-			required: [true, "User name is required"]
+			required: [true, "User name is required"],
+			unique: true
 		},
 		biography: String
 	},
@@ -24,7 +25,12 @@ var userSchema = new mongoose.Schema({
 	},
 	token: String,
 	hash: String,
-	salt: String
+	salt: String,
+	check_email_token: String,
+	emailConfirmed: {
+		type: Boolean,
+		default: false
+	}
 });
 
 userSchema.plugin(uniqueValidator, { message: "{PATH} is already taken" });
