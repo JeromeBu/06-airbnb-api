@@ -60,56 +60,27 @@ roomRouter.route(/^\/|$/).get(function(req, res) {
 
   queryToCount.count().exec(function(err, count) {
     if (err) return res.send(err);
-    query
-      .populate("user")
-      .limit(5)
-      .exec(function(err, rooms) {
-        if (err) return tools.badRequestError(res, err);
-        if (!rooms) return res.send("Couldn't find rooms");
-        console.log("count: ", count);
-        console.log("rooms : ", rooms);
-        res.json({ count: count, rooms: tools.displayedRooms(rooms) });
+    if (req.query.skip !== undefined) {
+      query.skip(parseInt(req.query.skip));
+    }
+    if (req.query.limit !== undefined) {
+      query.limit(parseInt(req.query.limit));
+    } else {
+      // valeur par défaut de la limite
+      query.limit(20);
+    }
+    query.populate("user").exec(function(err, rooms) {
+      if (err) return tools.badRequestError(res, err);
+      if (!rooms) return res.send("Couldn't find rooms");
+      console.log("count: ", count);
+      console.log("rooms : ", rooms);
+      res.json({
+        count: count,
+        countAfter: rooms.length,
+        rooms: tools.displayedRooms(rooms)
       });
+    });
   });
-
-  // if (latitude && longitude && distance) {
-  //   query
-  //     .where("loc")
-  //     .near({
-  //       center: [longitude, latitude],
-  //       maxDistance: getRadians(distance) // 10 kilomètres
-  //     })
-  //     .count()
-  //     .exec(function(err, count) {
-  //       if (err) return res.send(err);
-  //       Room.find(filter)
-  //         .where("loc")
-  //         .near({
-  //           center: [longitude, latitude],
-  //           maxDistance: getRadians(10000) // 10 kilomètres
-  //         })
-  //         .populate("user")
-  //         .limit(5)
-  //         .exec(function(err, rooms) {
-  //           if (err) return tools.badRequestError(res, err);
-  //           if (!rooms) return res.send("Couldn't find rooms");
-  //           console.log("count: ", count);
-  //           console.log("rooms : ", rooms);
-  //           res.json({ count: count, rooms: tools.displayedRooms(rooms) });
-  //         });
-  //     });
-  // } else {
-  //   query.count().exec(function(err, count) {
-  //     Room.find(filter)
-  //       .populate("user")
-  //       .limit(5)
-  //       .exec(function(err, rooms) {
-  //         if (err) return tools.badRequestError(res, err);
-  //         if (!rooms) return res.send("Couldn't find rooms");
-  //         res.json({ count: count, rooms: tools.displayedRooms(rooms) });
-  //       });
-  //   });
-  // }
 });
 
 function getRadians(meters) {
